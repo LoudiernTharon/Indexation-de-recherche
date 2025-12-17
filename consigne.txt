@@ -99,7 +99,7 @@ devrez également être attentifs à la complexité des algorithmes implémenté
 - Fichier source tp4.c, contenant la définition de chaque fonction,
 - Fichier source main.c, contenant le programme principal.
 Rapport
-Votre rapport de quatre pages maximum contiendra :
+Votre rapport de 2 pages maximum contiendra :
 - La liste des structures et des fonctions supplémentaires que vous avez choisi d’implémenter et les raisons
 de ces choix.
 - Un exposé succinct de la complexité de chacune des fonctions implémentées.

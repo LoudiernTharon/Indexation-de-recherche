@@ -4,141 +4,103 @@
 \usepackage[T1]{fontenc}
 \usepackage{geometry}
 \usepackage{amsmath}
-\usepackage{listings}
-\usepackage{xcolor}
 \usepackage{enumitem}
 
-\geometry{margin=2.5cm}
+\geometry{margin=2cm}
+\setlength{\parskip}{0.3em}
 
-\lstset{
-    basicstyle=\ttfamily\small,
-    breaklines=true,
-    frame=single,
-    numbers=left,
-    numberstyle=\tiny,
-    language=C
-}
-
-\title{\textbf{TP4 - Indexation de Texte par Arbres Binaires de Recherche}}
-\author{NF16 - A25}
+\title{\textbf{TP4 - Indexation de Texte par ABR}}
+\author{Timothée POUPINEAU & Loudiern THARON}
 \date{\today}
 
 \begin{document}
 
 \maketitle
 
-\section{Introduction}
-
-Ce rapport présente l'implémentation d'un système d'indexation de texte utilisant les arbres binaires de recherche (ABR). Le projet permet de charger un fichier texte, d'indexer tous ses mots avec leurs positions, et de reconstruire le texte à partir de l'index.
-
 \section{Structures et Fonctions Supplémentaires}
 
 \subsection{Structures Supplémentaires}
 
-En plus des structures demandées (\texttt{T\_Position}, \texttt{T\_Noeud}, \texttt{T\_Index}), nous avons implémenté une structure auxiliaire :
+En plus des structures demandées (\texttt{T\_Position}, \texttt{T\_Noeud}, \texttt{T\_Index}), nous avons implémenté :
 
-\begin{itemize}
-    \item \textbf{Structure Phrase} : Utilisée pour les questions B.6 et B.7, elle facilite la reconstruction des phrases à partir de l'index. Elle contient :
-    \begin{itemize}
-        \item \texttt{numeroPhrase} : identifiant de la phrase
-        \item \texttt{mots} : tableau dynamique de pointeurs vers les mots
-        \item \texttt{ordres} : tableau des ordres correspondants
-        \item \texttt{taille} et \texttt{capacite} : gestion dynamique de la taille
-    \end{itemize}
+\begin{itemize}[noitemsep]
+    \item \textbf{T\_MotOrdre} (B.6) : Liste chaînée stockant un mot et son ordre dans la phrase. Permet de reconstruire une phrase en ordre croissant lors de l'affichage des occurrences.
+    \item \textbf{T\_Phrase} (B.7) : Tableau dynamique contenant les mots d'une phrase avec leurs ordres. Facilite la reconstruction complète du texte.
 \end{itemize}
 
-\textbf{Justification} : Cette structure permet d'éviter des parcours répétés de l'ABR lors de la reconstruction des phrases. Elle optimise les opérations B.6 et B.7 en centralisant les données nécessaires.
+\textbf{Justification} : Ces structures évitent des parcours répétés de l'ABR et permettent de trier les mots efficacement pour reconstituer les phrases dans le bon ordre.
 
 \subsection{Fonctions Auxiliaires}
 
-\begin{itemize}
+\begin{itemize}[noitemsep]
     \item \texttt{initialiserIndex()} : Initialise un index vide
-    \item \texttt{convertirMinuscules()} : Convertit un mot en minuscules pour ignorer la casse
-    \item \texttt{libererPositions()}, \texttt{libererNoeud()}, \texttt{libererIndex()} : Gestion de la mémoire
-    \item \texttt{afficherNoeudInfixe()} : Affichage récursif de l'index
-    \item \texttt{collecterPhrasesRecursif()} : Collecte toutes les phrases de l'index
-    \item \texttt{ajouterMotPhrase()} : Ajoute un mot à une phrase avec réallocation dynamique
+    \item \texttt{convertirMinuscules()} : Ignore la casse (voiture = Voiture = VOITURE)
+    \item \texttt{libererPositions()}, \texttt{libererNoeud()}, \texttt{libererIndex()} : Libération mémoire
+    \item \texttt{afficherNoeudInfixe()} : Parcours infixe pour affichage alphabétique
+    \item \texttt{ajouterMotOrdre()} : Insertion triée dans une liste de mots ordonnés
+    \item \texttt{collecterMotsPhrase()} : Collecte les mots d'une phrase donnée
+    \item \texttt{afficherPhrase()}, \texttt{libererMotsOrdres()} : Affichage et libération pour B.6
+    \item \texttt{ajouterMotPhrase()}, \texttt{collecterPhrasesRecursif()} : Collecte pour B.7
 \end{itemize}
 
-\textbf{Justification} : Ces fonctions assurent la modularité du code, facilitent la maintenance et garantissent une gestion correcte de la mémoire dynamique.
+\textbf{Justification} : Modularité du code, réutilisation des fonctions et gestion rigoureuse de la mémoire dynamique.
 
 \section{Complexité des Fonctions}
 
-\subsection{Fonctions de Base}
+\subsection{Fonctions Demandées}
 
-\begin{enumerate}
-    \item \textbf{ajouterPosition()} : $O(p)$ où $p$ est le nombre de positions dans la liste. La fonction parcourt la liste pour insérer la position au bon endroit tout en maintenant l'ordre.
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Fonction} & \textbf{Complexité} & \textbf{Remarque} \\
+\hline
+\texttt{ajouterPosition()} & $O(p)$ & $p$ = nb positions du mot \\
+\hline
+\texttt{ajouterOccurence()} & $O(h + p)$ & $h$ = hauteur ABR \\
+\hline
+\texttt{indexerFichier()} & $O(m \times h)$ & $m$ = nb mots fichier \\
+\hline
+\texttt{afficherIndex()} & $O(n \times p)$ & $n$ = mots distincts \\
+\hline
+\texttt{rechercherMot()} & $O(h)$ & Recherche binaire \\
+\hline
+\texttt{afficherOccurencesMot()} & $O(k \times n)$ & $k$ = occurrences du mot \\
+\hline
+\texttt{construireTexte()} & $O(n \times p + s^2)$ & $s$ = nb phrases \\
+\hline
+\end{tabular}
 
-    \item \textbf{ajouterOccurence()} : $O(h + p)$ où $h$ est la hauteur de l'arbre et $p$ le nombre de positions du mot. Dans le pire cas (arbre dégénéré) : $O(n + p)$ où $n$ est le nombre de mots distincts. En moyenne (arbre équilibré) : $O(\log n + p)$.
-
-    \item \textbf{indexerFichier()} : $O(m \times (h + p))$ où $m$ est le nombre de mots dans le fichier. Chaque mot nécessite une insertion dans l'ABR. Dans le meilleur cas (arbre équilibré) : $O(m \times \log n)$.
-
-    \item \textbf{afficherIndex()} : $O(n \times p)$ où $n$ est le nombre de mots distincts et $p$ le nombre moyen de positions. Le parcours infixe visite chaque nœud une fois et affiche toutes ses positions.
-
-    \item \textbf{rechercherMot()} : $O(h)$ où $h$ est la hauteur de l'arbre. Dans le meilleur cas : $O(\log n)$, dans le pire cas : $O(n)$.
-
-    \item \textbf{afficherOccurencesMot()} : $O(n \times p + k \times m \log m)$ où :
-    \begin{itemize}
-        \item $n$ = nombre de mots distincts
-        \item $p$ = nombre moyen de positions par mot
-        \item $k$ = nombre d'occurrences du mot cherché
-        \item $m$ = nombre moyen de mots par phrase
-    \end{itemize}
-    La fonction collecte toutes les phrases puis trie les mots de chaque phrase concernée.
-
-    \item \textbf{construireTexte()} : $O(n \times p + s \log s + s \times m \log m)$ où :
-    \begin{itemize}
-        \item $n$ = nombre de mots distincts
-        \item $p$ = nombre moyen de positions
-        \item $s$ = nombre de phrases
-        \item $m$ = nombre moyen de mots par phrase
-    \end{itemize}
-    La fonction collecte toutes les phrases, les trie, puis trie les mots dans chaque phrase.
-\end{enumerate}
+\vspace{0.5em}
+\textbf{Notation} : $h$ = hauteur de l'arbre. Cas moyen : $h = O(\log n)$. Pire cas : $h = O(n)$.
 
 \subsection{Fonctions Auxiliaires}
 
-\begin{itemize}
-    \item \texttt{convertirMinuscules()} : $O(k)$ où $k$ est la longueur du mot
-    \item \texttt{libererIndex()} : $O(n)$ où $n$ est le nombre total de nœuds
-    \item \texttt{collecterPhrasesRecursif()} : $O(n \times p)$
-    \item \texttt{ajouterMotPhrase()} : $O(1)$ amorti (réallocation avec doublement de capacité)
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Fonction} & \textbf{Complexité} \\
+\hline
+\texttt{convertirMinuscules()} & $O(k)$ ($k$ = longueur mot) \\
+\hline
+\texttt{libererIndex()} & $O(n)$ \\
+\hline
+\texttt{collecterMotsPhrase()} & $O(n \times p)$ \\
+\hline
+\texttt{ajouterMotOrdre()} & $O(m)$ ($m$ = mots/phrase) \\
+\hline
+\texttt{collecterPhrasesRecursif()} & $O(n \times p)$ \\
+\hline
+\texttt{ajouterMotPhrase()} & $O(1)$ amorti \\
+\hline
+\end{tabular}
+
+\section{Choix d'Implémentation}
+
+\begin{itemize}[noitemsep]
+    \item \textbf{Casse} : Conversion systématique en minuscules via \texttt{tolower()}.
+    \item \textbf{Ordre} : \texttt{strcmp()} pour l'ordre lexicographique dans l'ABR.
+    \item \textbf{Positions triées} : Insertion en $O(p)$ mais évite des tris ultérieurs.
+    \item \textbf{Mémoire} : Tableaux dynamiques avec doublement de capacité. Libération complète à la fin.
+    \item \textbf{B.6 optimisé} : Pour chaque occurrence, parcours unique de l'ABR pour collecter les mots de la phrase concernée, insertion triée par ordre.
+    \item \textbf{B.7} : Collecte globale des phrases puis tri par numéro et par ordre des mots.
 \end{itemize}
-
-\section{Choix d'Implémentation et Optimisations}
-
-\subsection{Gestion de la Casse}
-
-Tous les mots sont convertis en minuscules lors de l'insertion dans l'ABR. Cela permet de traiter "Voiture", "voiture" et "VOITURE" comme un seul mot, conformément aux exigences. La conversion est effectuée par la fonction \texttt{convertirMinuscules()}.
-
-\subsection{Ordre Lexicographique}
-
-L'utilisation de \texttt{strcmp()} garantit un ordre alphabétique naturel dans l'ABR. Cette fonction est optimisée en C et assure des comparaisons cohérentes.
-
-\subsection{Liste Triée de Positions}
-
-Les positions sont maintenues triées par (ligne, ordre) dans une liste chaînée. Bien que l'insertion soit en $O(p)$, cela simplifie grandement l'affichage et la reconstruction du texte, évitant des tris ultérieurs coûteux.
-
-\subsection{Optimisation Mémoire}
-
-\begin{itemize}
-    \item Utilisation de tableaux dynamiques avec doublement de capacité pour éviter des réallocations fréquentes
-    \item Libération systématique de la mémoire dans l'option 7 du menu
-    \item Pas de duplication inutile des chaînes de caractères
-\end{itemize}
-
-\section{Conclusion}
-
-L'implémentation proposée respecte toutes les exigences du TP tout en privilégiant la simplicité et l'efficacité. Les choix algorithmiques permettent d'obtenir des complexités raisonnables pour des textes de taille moyenne. Les structures auxiliaires, bien que non demandées, améliorent significativement les performances des fonctions de reconstruction de phrases et de texte.
-
-Les principales forces de cette implémentation sont :
-\begin{itemize}
-    \item Code simple et lisible
-    \item Gestion rigoureuse de la mémoire dynamique
-    \item Complexités optimales pour un ABR non équilibré
-    \item Modularité facilitant la maintenance
-\end{itemize}
-
-Une amélioration possible serait l'implémentation d'un ABR auto-équilibré (AVL ou Rouge-Noir) pour garantir des complexités logarithmiques même dans le pire cas.
 
 \end{document}
