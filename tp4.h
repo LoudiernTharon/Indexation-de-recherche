@@ -56,8 +56,11 @@ void construireTexte(T_Index index, char *filename);
 void initialiserIndex(T_Index *index);
 void libererPositions(T_Position *liste);
 void libererNoeud(T_Noeud *noeud);
+
 void libererIndex(T_Index *index);
 void afficherNoeudInfixe(T_Noeud *noeud);
 char *convertirMinuscules(char *mot);
+void collecterMotsPhrase(T_Noeud *noeud, int numeroPhrase, T_MotOrdre **listeMots);
+void collecterPhrasesRecursif(T_Noeud *noeud, T_Phrase **phrases, int *nbPhrases, int *capacitePhrases);
 
 #endif
