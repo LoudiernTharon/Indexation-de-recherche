@@ -10,7 +10,7 @@
 \setlength{\parskip}{0.3em}
 
 \title{\textbf{TP4 - Indexation de Texte par ABR}}
-\author{Timothée POUPINEAU & Loudiern THARON}
+\author{Timothée POUPINEAU \& Loudiern THARON}
 \date{\today}
 
 \begin{document}
@@ -47,7 +47,7 @@ En plus des structures demandées (\texttt{T\_Position}, \texttt{T\_Noeud}, \tex
 
 \section{Complexité des Fonctions}
 
-\subsection{Fonctions Demandées}
+\subsection{Fonctions Demandées (B.1 à B.7)}
 
 \begin{tabular}{|l|l|l|}
 \hline
@@ -69,26 +69,38 @@ En plus des structures demandées (\texttt{T\_Position}, \texttt{T\_Noeud}, \tex
 \hline
 \end{tabular}
 
-\vspace{0.5em}
+\vspace{0.3em}
 \textbf{Notation} : $h$ = hauteur de l'arbre. Cas moyen : $h = O(\log n)$. Pire cas : $h = O(n)$.
 
 \subsection{Fonctions Auxiliaires}
 
-\begin{tabular}{|l|l|}
+\begin{tabular}{|l|l|l|}
 \hline
-\textbf{Fonction} & \textbf{Complexité} \\
+\textbf{Fonction} & \textbf{Complexité} & \textbf{Remarque} \\
 \hline
-\texttt{convertirMinuscules()} & $O(k)$ ($k$ = longueur mot) \\
+\texttt{initialiserIndex()} & $O(1)$ & Initialisation constante \\
 \hline
-\texttt{libererIndex()} & $O(n)$ \\
+\texttt{convertirMinuscules()} & $O(l)$ & $l$ = longueur du mot \\
 \hline
-\texttt{collecterMotsPhrase()} & $O(n \times p)$ \\
+\texttt{afficherNoeudInfixe()} & $O(n \times p)$ & Parcours infixe récursif \\
 \hline
-\texttt{ajouterMotOrdre()} & $O(m)$ ($m$ = mots/phrase) \\
+\texttt{libererPositions()} & $O(p)$ & Parcours linéaire de la liste \\
 \hline
-\texttt{collecterPhrasesRecursif()} & $O(n \times p)$ \\
+\texttt{libererNoeud()} & $O(n \times p)$ & Libération récursive \\
 \hline
-\texttt{ajouterMotPhrase()} & $O(1)$ amorti \\
+\texttt{libererIndex()} & $O(n \times p)$ & Appelle libererNoeud() \\
+\hline
+\texttt{ajouterMotOrdre()} & $O(m)$ & $m$ = mots par phrase \\
+\hline
+\texttt{collecterMotsPhrase()} & $O(n \times p)$ & Parcours complet ABR \\
+\hline
+\texttt{afficherPhrase()} & $O(m)$ & Parcours linéaire \\
+\hline
+\texttt{libererMotsOrdres()} & $O(m)$ & Libération linéaire \\
+\hline
+\texttt{ajouterMotPhrase()} & $O(1)$ amorti & Doublement capacité \\
+\hline
+\texttt{collecterPhrasesRecursif()} & $O(n \times p \times s)$ & Parcours ABR + recherche phrase \\
 \hline
 \end{tabular}
 
