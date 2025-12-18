@@ -1,39 +1,90 @@
 # TP4 - Indexation de Texte par ABR
 
-## Compilation
+> **NF16 - Algorithmique et Structures de Données**  
+> Université de Technologie de Compiègne (UTC)
 
-Pour compiler le projet :
+## Description
 
-```bash
-gcc -o tp4 main.c tp4.c -Wall -Wextra
+Implémentation d'un système d'indexation de texte utilisant un **Arbre Binaire de Recherche (ABR)**. Le programme permet d'indexer un fichier texte, de rechercher des mots, et de reconstruire le texte original à partir de l'index.
+
+## Structure du Projet
+
+```
+TP4/
+├── src/
+│   ├── tp4.h          # Structures et prototypes
+│   └── tp4.c          # Implémentation des fonctions
+├── textes/            # Fichiers de test
+│   ├── test.txt       # Test basique
+│   ├── albatroz.txt   # Poème (L'Albatros de Baudelaire)
+│   ├── simple.txt     # 2 phrases simples
+│   ├── repetitions.txt # Mots répétés
+│   ├── multilignes.txt # Phrases sur plusieurs lignes
+│   ├── long_phrase.txt # Phrase longue (30+ mots)
+│   ├── majuscules.txt  # Casse mixte
+│   ├── ponctuation.txt # Ponctuation variée
+│   └── mot_unique.txt  # 1 seul mot
+├── main.c             # Programme principal (menu)
+└── README.md
 ```
 
-## Exécution
+## Compilation
 
-Pour lancer le programme :
+```bash
+gcc -I src src/tp4.c main.c -o tp4 -Wall -Wextra
+```
+
+## Utilisation
 
 ```bash
 ./tp4
 ```
 
-## Test Rapide
+### Menu Principal
 
-1. Lancez le programme
-2. Choisissez l'option 1 (Charger un fichier)
-3. Entrez : test.txt
-4. Testez les autres options du menu
+| Option | Action |
+|--------|--------|
+| 1 | Charger un fichier texte |
+| 2 | Afficher les caractéristiques (nb mots distincts/total) |
+| 3 | Afficher l'index complet (ordre alphabétique) |
+| 4 | Rechercher un mot dans l'index |
+| 5 | Afficher les phrases contenant un mot |
+| 6 | Reconstruire le texte dans un fichier |
+| 7 | Quitter |
 
-## Fichiers
-
-- `tp4.h` : Fichier d'en-tête avec les structures et prototypes
-- `tp4.c` : Implémentation de toutes les fonctions
-- `main.c` : Programme principal avec menu interactif
-- `test.txt` : Fichier texte d'exemple pour tester
-- `rapport.tex` : Rapport LaTeX (à compiler avec pdflatex)
-- `EXPLICATION.txt` : Documentation détaillée
-
-## Compilation du Rapport
+## Tests Rapides
 
 ```bash
-pdflatex rapport.tex
+# Test basique
+./tp4
+> 1
+> textes/test.txt
+> 2
+> 7
+
+# Test avec poème
+./tp4
+> 1
+> textes/albatroz.txt
+> 4
+> albatros
+> 7
 ```
+
+## Fonctions Implémentées
+
+| Question | Fonction | Complexité |
+|----------|----------|------------|
+| B.1 | `ajouterPosition` | O(n) |
+| B.2 | `ajouterOccurence` | O(h) |
+| B.3 | `indexerFichier` | O(m × h) |
+| B.4 | `afficherIndex` | O(n) |
+| B.5 | `rechercherMot` | O(h) |
+| B.6 | `afficherOccurencesMot` | O(n × p) |
+| B.7 | `construireTexte` | O(p × n) |
+
+*h = hauteur de l'arbre, n = nombre de mots, m = mots du fichier, p = nombre de phrases*
+
+## Auteur
+
+Tharon Loudiern - UTC A25

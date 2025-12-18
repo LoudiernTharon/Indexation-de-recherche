@@ -1,0 +1,1 @@
+Ceci est une phrase tres longue qui contient de nombreux mots differents pour tester la capacite du programme a gerer des phrases avec beaucoup de mots et verifier que la reconstruction fonctionne correctement.
