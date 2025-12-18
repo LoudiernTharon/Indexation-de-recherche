@@ -87,4 +87,4 @@ gcc -I src src/tp4.c main.c -o tp4 -Wall -Wextra
 
 ## Auteur
 
-Tharon Loudiern - UTC A25
+Tharon Loudiern & Poupineau Timothée - UTC A25
