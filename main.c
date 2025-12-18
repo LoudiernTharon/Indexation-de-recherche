@@ -1,4 +1,4 @@
-#include "tp4.h"
+#include "src/tp4.h"
 
 void afficherMenu() {
     printf("\n========== MENU PRINCIPAL ==========\n");

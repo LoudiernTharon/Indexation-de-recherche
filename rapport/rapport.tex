@@ -1,0 +1,128 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{amsmath}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{graphicx}
+
+\geometry{margin=1.8cm, headheight=15pt}
+\setlength{\parskip}{0.2em}
+\setlength{\parindent}{0em}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\textbf{UTC}}
+\rhead{\Large{\textbf{NF16} - \textit{A25}}}
+\rfoot{Page \thepage\ / \pageref{LastPage}}
+\renewcommand{\footrulewidth}{0.4pt}
+
+\title{\textbf{TP4 - Indexation de Texte par ABR}}
+\author{Timothée POUPINEAU \& Loudiern THARON}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Structures et Fonctions Supplémentaires}
+
+\subsection{Structures Supplémentaires}
+
+En plus des structures demandées (\texttt{T\_Position}, \texttt{T\_Noeud}, \texttt{T\_Index}), nous avons implémenté :
+
+\begin{itemize}[noitemsep,topsep=0pt]
+    \item \textbf{T\_MotOrdre} (B.6 et B.7) : Liste chaînée stockant un mot et son ordre dans la phrase. Permet de reconstruire une phrase en ordre croissant.
+\end{itemize}
+
+\textbf{Justification} : Ces structures évitent des parcours répétés de l'ABR et permettent de trier les mots efficacement pour reconstituer les phrases dans le bon ordre.
+
+\subsection{Fonctions Auxiliaires}
+
+\begin{itemize}[noitemsep,topsep=0pt]
+    \item \texttt{initialiserIndex()} : Initialise un index vide
+    \item \texttt{convertirMinuscules()} : Ignore la casse (voiture = Voiture = VOITURE)
+    \item \texttt{libererPositions()}, \texttt{libererNoeud()}, \texttt{libererIndex()} : Libération mémoire
+    \item \texttt{afficherNoeudInfixe()} : Parcours infixe pour affichage alphabétique
+    \item \texttt{ajouterMotOrdre()} : Insertion triée dans une liste de mots ordonnés (B.6)
+    \item \texttt{collecterMotsPhrase()} : Collecte les mots d'une phrase donnée (B.6)
+    \item \texttt{afficherPhrase()}, \texttt{libererMotsOrdres()} : Affichage et libération (B.6)
+    \item \texttt{compterPhrasesMax()} : Trouve le numéro de phrase maximum (B.7)
+\end{itemize}
+
+\textbf{Justification} : Modularité du code, réutilisation des fonctions et gestion rigoureuse de la mémoire dynamique.
+
+\section{Complexité des Fonctions}
+
+\textbf{Notations} : $n$ = mots distincts, $h$ = hauteur ABR, $p$ = positions/mot, $m$ = mots totaux, $k$ = longueur mot, $s$ = nb phrases.
+
+\vspace{0.3em}
+\textbf{Cas moyen} : $h = O(\log n)$. \textbf{Pire cas} (arbre dégénéré) : $h = O(n)$.
+
+\subsection{Fonctions Demandées (B.1 à B.7)}
+
+\begin{tabular}{|l|l|p{7cm}|}
+\hline
+\textbf{Fonction} & \textbf{Complexité} & \textbf{Explication} \\
+\hline
+\texttt{ajouterPosition()} & $O(p)$ & Parcours de la liste pour insertion triée \\
+\hline
+\texttt{ajouterOccurence()} & $O(h + p)$ & Descente dans l'ABR + insertion position \\
+\hline
+\texttt{indexerFichier()} & $O(m \times h)$ & Lecture fichier + $m$ insertions dans l'ABR \\
+\hline
+\texttt{afficherIndex()} & $O(n \times p)$ & Parcours infixe + affichage positions \\
+\hline
+\texttt{rechercherMot()} & $O(h)$ & Recherche binaire dans l'ABR \\
+\hline
+\texttt{afficherOccurencesMot()} & $O(k \times n \times p)$ & $k$ occurrences $\times$ parcours ABR/phrase \\
+\hline
+\texttt{construireTexte()} & $O(s \times n \times p)$ & $s$ phrases $\times$ parcours ABR par phrase \\
+\hline
+\end{tabular}
+
+\subsection{Fonctions Auxiliaires}
+
+\begin{tabular}{|l|l|p{7cm}|}
+\hline
+\textbf{Fonction} & \textbf{Complexité} & \textbf{Explication} \\
+\hline
+\texttt{initialiserIndex()} & $O(1)$ & Initialisation des 3 champs \\
+\hline
+\texttt{convertirMinuscules()} & $O(k)$ & Parcours de la chaîne ($k$ = longueur) \\
+\hline
+\texttt{afficherNoeudInfixe()} & $O(n \times p)$ & Parcours récursif infixe complet \\
+\hline
+\texttt{ajouterMotOrdre()} & $O(m)$ & Insertion triée ($m$ = mots/phrase) \\
+\hline
+\texttt{collecterMotsPhrase()} & $O(n \times p)$ & Parcours ABR + vérification positions \\
+\hline
+\texttt{afficherPhrase()} & $O(m)$ & Parcours liste de mots \\
+\hline
+\texttt{libererMotsOrdres()} & $O(m)$ & Libération liste chaînée \\
+\hline
+\texttt{compterPhrasesMax()} & $O(n \times p)$ & Parcours ABR + recherche max phrase \\
+\hline
+\texttt{libererPositions()} & $O(p)$ & Libération liste positions \\
+\hline
+\texttt{libererNoeud()} & $O(n)$ & Libération récursive sous-arbre \\
+\hline
+\texttt{libererIndex()} & $O(n)$ & Appel libererNoeud sur racine \\
+\hline
+\end{tabular}
+
+\section{Choix d'Implémentation}
+
+\begin{itemize}[noitemsep,topsep=0pt]
+    \item \textbf{Casse} : Conversion systématique en minuscules via \texttt{tolower()}.
+    \item \textbf{Ordre} : \texttt{strcmp()} pour l'ordre lexicographique dans l'ABR.
+    \item \textbf{Positions triées} : Insertion en $O(p)$ mais évite des tris ultérieurs.
+    \item \textbf{Mémoire} : Libération complète via \texttt{libererIndex()} à la fin du programme.
+    \item \textbf{B.6 optimisé} : Pour chaque occurrence, parcours unique de l'ABR pour collecter les mots de la phrase concernée, insertion triée par ordre.
+    \item \textbf{B.7 réutilise B.6} : Utilise \texttt{collecterMotsPhrase()} pour chaque phrase, évitant la duplication de code.
+\end{itemize}
+
+\end{document}

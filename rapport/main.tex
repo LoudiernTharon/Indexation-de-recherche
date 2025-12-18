@@ -1,0 +1,44 @@
+\documentclass{report-UTC}
+
+\begin{document}\thispagestyle{empty}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.7\linewidth]{assets/logo_utc.jpg}
+\end{figure}
+
+\vspace{1.5cm}
+
+\begin{center}
+\huge{\textbf{Projet}} \\
+\vspace{1cm}
+\textit{Template de rapport} \\
+\vspace{1cm}
+\noindent\rule{10cm}{0.4pt} \\
+\vspace{0.5cm}
+\huge{\textbf{Rapport de PR}} \\
+\vspace{0.5cm}
+\noindent\rule{10cm}{0.4pt}  \\
+\vspace{2cm}
+\Large{Toi et moi} \\
+\vspace{1.5cm}
+\Large{\today}
+\end{center}
+
+\renewcommand*\contentsname{Sommaire}
+
+\clearpage
+
+\tableofcontents\thispagestyle{empty}
+
+\clearpage
+\subfile{src/content}
+\clearpage
+\subfile{src/conclusion}
+
+\printbibliography 
+
+\clearpage
+\subfile{src/appendix}
+
+\end{document}

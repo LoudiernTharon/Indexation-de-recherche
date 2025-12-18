@@ -324,143 +324,81 @@ void afficherOccurencesMot(T_Index index, char *mot) {
     }
 }
 
-/* Question B.7 */
-typedef struct Phrase {
-    int numeroPhrase;
-    char **mots;
-    int *ordres;
-    int taille;
-    int capacite;
-} T_Phrase;
+/* Question B.7 - Version optimisée réutilisant B6 */
 
-void ajouterMotPhrase(T_Phrase *phrase, char *mot, int ordre) {
-    if (phrase->taille >= phrase->capacite) {
-        phrase->capacite *= 2;
-        phrase->mots = realloc(phrase->mots, phrase->capacite * sizeof(char*));
-        phrase->ordres = realloc(phrase->ordres, phrase->capacite * sizeof(int));
-    }
-    phrase->mots[phrase->taille] = mot;
-    phrase->ordres[phrase->taille] = ordre;
-    phrase->taille++;
-}
-
-void collecterPhrasesRecursif(T_Noeud *noeud, T_Phrase **phrases, int *nbPhrases, int *capacitePhrases) {
-    if (noeud == NULL) {
-        return;
-    }
+// Trouver le nombre max de phrases dans l'index
+int compterPhrasesMax(T_Noeud *noeud, int *maxPhrase) {
+    if (noeud == NULL) return 0;
     
-    collecterPhrasesRecursif(noeud->filsGauche, phrases, nbPhrases, capacitePhrases);
+    compterPhrasesMax(noeud->filsGauche, maxPhrase);
     
     T_Position *pos = noeud->listePositions;
     while (pos != NULL) {
-        int numPhrase = pos->numeroPhrase;
-        int i;
-        int trouve = 0;
-        
-        for (i = 0; i < *nbPhrases; i++) {
-            if (phrases[i]->numeroPhrase == numPhrase) {
-                ajouterMotPhrase(phrases[i], noeud->mot, pos->ordre);
-                trouve = 1;
-                break;
-            }
-        }
-        
-        if (!trouve) {
-            if (*nbPhrases >= *capacitePhrases) {
-                *capacitePhrases *= 2;
-                *phrases = realloc(*phrases, (*capacitePhrases) * sizeof(T_Phrase*));
-            }
-            
-            phrases[*nbPhrases] = malloc(sizeof(T_Phrase));
-            phrases[*nbPhrases]->numeroPhrase = numPhrase;
-            phrases[*nbPhrases]->capacite = 10;
-            phrases[*nbPhrases]->taille = 0;
-            phrases[*nbPhrases]->mots = malloc(10 * sizeof(char*));
-            phrases[*nbPhrases]->ordres = malloc(10 * sizeof(int));
-            ajouterMotPhrase(phrases[*nbPhrases], noeud->mot, pos->ordre);
-            (*nbPhrases)++;
-        }
-        
+        if (pos->numeroPhrase > *maxPhrase)
+            *maxPhrase = pos->numeroPhrase;
         pos = pos->suivant;
     }
     
-    collecterPhrasesRecursif(noeud->filsDroit, phrases, nbPhrases, capacitePhrases);
+    compterPhrasesMax(noeud->filsDroit, maxPhrase);
+    return *maxPhrase;
+}
+
+// Compter les phrases couvertes par un mot
+int compterPhrasesMot(T_Noeud *noeud) {
+    if (noeud == NULL) return 0;
+    
+    int count = 0;
+    int dernierPhrase = -1;
+    T_Position *pos = noeud->listePositions;
+    
+    while (pos != NULL) {
+        if (pos->numeroPhrase != dernierPhrase) {
+            count++;
+            dernierPhrase = pos->numeroPhrase;
+        }
+        pos = pos->suivant;
+    }
+    return count;
 }
 
 void construireTexte(T_Index index, char *filename) {
-    int capacitePhrases = 10;
-    int nbPhrases = 0;
-    T_Phrase **phrases = malloc(capacitePhrases * sizeof(T_Phrase*));
+    // 1. Trouver le nombre total de phrases
+    int nbPhrasesTotal = 0;
+    compterPhrasesMax(index.racine, &nbPhrasesTotal);
     
-    collecterPhrasesRecursif(index.racine, phrases, &nbPhrases, &capacitePhrases);
-    
-    int i;
-    for (i = 0; i < nbPhrases - 1; i++) {
-        int j;
-        for (j = i + 1; j < nbPhrases; j++) {
-            if (phrases[i]->numeroPhrase > phrases[j]->numeroPhrase) {
-                T_Phrase *temp = phrases[i];
-                phrases[i] = phrases[j];
-                phrases[j] = temp;
-            }
-        }
-    }
+    printf("Nombre total de phrases : %d\n", nbPhrasesTotal);
     
     FILE *fichier = fopen(filename, "w");
-    if (fichier == NULL) {
-        for (i = 0; i < nbPhrases; i++) {
-            free(phrases[i]->mots);
-            free(phrases[i]->ordres);
-            free(phrases[i]);
-        }
-        free(phrases);
-        return;
-    }
+    if (fichier == NULL) return;
     
-    for (i = 0; i < nbPhrases; i++) {
-        int *indices = malloc(phrases[i]->taille * sizeof(int));
-        int j;
-        for (j = 0; j < phrases[i]->taille; j++) {
-            indices[j] = j;
-        }
+    // 2. Reconstruire chaque phrase en réutilisant collecterMotsPhrase de B6
+    for (int i = 1; i <= nbPhrasesTotal; i++) {
+        T_MotOrdre *listeMots = NULL;
+        collecterMotsPhrase(index.racine, i, &listeMots);
         
-        int k;
-        for (j = 0; j < phrases[i]->taille - 1; j++) {
-            for (k = j + 1; k < phrases[i]->taille; k++) {
-                if (phrases[i]->ordres[indices[j]] > phrases[i]->ordres[indices[k]]) {
-                    int temp = indices[j];
-                    indices[j] = indices[k];
-                    indices[k] = temp;
-                }
-            }
-        }
-        
-        for (j = 0; j < phrases[i]->taille; j++) {
-            if (j == 0) {
-                fprintf(fichier, "%c%s", toupper(phrases[i]->mots[indices[j]][0]), 
-                    phrases[i]->mots[indices[j]] + 1);
+        // Écrire la phrase
+        T_MotOrdre *courant = listeMots;
+        int premier = 1;
+        while (courant != NULL) {
+            if (premier) {
+                fprintf(fichier, "%c%s", toupper(courant->mot[0]), courant->mot + 1);
+                premier = 0;
             } else {
-                fprintf(fichier, " %s", phrases[i]->mots[indices[j]]);
+                fprintf(fichier, " %s", courant->mot);
             }
+            courant = courant->suivant;
         }
         fprintf(fichier, ".");
+        if (i < nbPhrasesTotal) fprintf(fichier, " ");
         
-        if (i < nbPhrases - 1) {
-            fprintf(fichier, " ");
-        }
-        
-        free(indices);
+        libererMotsOrdres(listeMots);
     }
     
     fclose(fichier);
-    
-    for (i = 0; i < nbPhrases; i++) {
-        free(phrases[i]->mots);
-        free(phrases[i]->ordres);
-        free(phrases[i]);
-    }
-    free(phrases);
+    printf("Document reconstruit dans '%s'\n", filename);
 }
+
+/* Fonctions de liberation memoire */
 
 void libererPositions(T_Position *liste) {
     while (liste != NULL) {
